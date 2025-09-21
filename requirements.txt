@@ -1,0 +1,9 @@
+altair==5.3.0
+numpy==1.26.4
+pandas==2.2.2
+pyarrow==16.1.0
+python-dotenv==1.0.1
+requests==2.32.3
+streamlit==1.35.0
+nfl-data-py==0.3.1
+pytest==8.2.1
