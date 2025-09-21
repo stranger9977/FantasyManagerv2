@@ -1,0 +1,8 @@
+__pycache__/
+.env
+*.pyc
+*.pyo
+*.log
+.streamlit/
+data/raw/
+data/processed/
