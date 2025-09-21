@@ -1,6 +1,7 @@
 """Utilities for collecting FantasyPros projection data."""
 from __future__ import annotations
 
+import math
 import re
 from dataclasses import dataclass
 from typing import Iterable, List, Optional
@@ -64,6 +65,30 @@ POSITION_COLUMN_MAP = {
 }
 
 
+def _normalize_column_name(col: object) -> str:
+    """Convert parsed column labels into normalized strings."""
+
+    def _stringify(value: object) -> str:
+        if value is None:
+            return ""
+        if isinstance(value, float) and math.isnan(value):
+            return ""
+        text = str(value).strip()
+        return text
+
+    if isinstance(col, tuple):
+        parts = []
+        for part in col:
+            text = _stringify(part)
+            if text:
+                parts.append(text)
+        col_str = " ".join(parts)
+    else:
+        col_str = _stringify(col)
+
+    return re.sub(r"\s+", " ", col_str).strip()
+
+
 def _build_url(base_url: str, position: str, scoring: str) -> str:
     return f"{base_url}/{position}.php" if scoring == "ppr" else f"{base_url}/{position}-{scoring}.php"
 
@@ -97,7 +122,7 @@ def fetch_position(
     if not tables:
         return pd.DataFrame()
     df = tables[0].copy()
-    df.columns = [re.sub(r"\s+", " ", col).strip() for col in df.columns]
+    df.columns = [_normalize_column_name(col) for col in df.columns]
     parsed = _clean_player_column(df.iloc[:, 0])
     df = pd.concat([parsed, df.drop(columns=df.columns[0])], axis=1)
     df["merge_name"] = df["name"].map(make_merge_key)
